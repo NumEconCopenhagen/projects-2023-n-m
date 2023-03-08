@@ -1,9 +1,8 @@
-# \[Group name\]
+# \[N & M\]
 
 **Group members:**
-- A
-- B
-- C
+- Nina Frandsen Jensen
+- Mathilde Maix
 
 This repository contains  
 1. Inaugural project. 
