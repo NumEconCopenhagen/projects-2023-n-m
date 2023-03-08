@@ -66,3 +66,67 @@ p2 = 1
 kappa = 0.1
 eps = 1e-8
 p1 = find_equilibrium(alphas,p1,p2,e1,e2,kappa=kappa,eps=eps)
+
+# a. parameters
+N = 1000
+k = 2
+mu_low = 0.1
+mu_high = 0.9
+seed = 1986
+
+# b. draws of random numbers
+np.random.seed(seed)
+alphas = np.random.uniform(low=mu_low,high=mu_high,size=N)
+
+# c. demand function
+def demand_good_1_func(alpha,p1,p2,k):
+    I = k*p1+p2
+    return alpha*I/p1
+
+# d. excess demand function
+def excess_demand_good_1_func(alphas,p1,p2,k):
+    
+    # a. demand
+    demand = np.sum(demand_good_1_func(alphas,p1,p2,k))
+    
+    # b. supply
+    supply = k*alphas.size
+    
+    # c. excess demand
+    excess_demand = demand-supply
+    
+    return excess_demand
+
+# e. find equilibrium function
+def find_equilibrium(alphas,p1,p2,k,kappa=0.5,eps=1e-8,maxiter=500):
+    
+    t = 0
+    while True:
+
+        # a. step 1: excess demand
+        Z1 = excess_demand_good_1_func(alphas,p1,p2,k)
+        
+        # b: step 2: stop?
+        if  np.abs(Z1) < eps or t >= maxiter:
+            print(f'{t:3d}: p1 = {p1:12.8f} -> excess demand -> {Z1:14.8f}')
+            break    
+    
+        # c. step 3: update p1
+        p1 = p1 + kappa*Z1/alphas.size
+            
+        # d. step 4: return 
+        if t < 5 or t%25 == 0:
+            print(f'{t:3d}: p1 = {p1:12.8f} -> excess demand -> {Z1:14.8f}')
+        elif t == 5:
+            print('   ...')
+            
+        t += 1    
+
+    return p1
+
+# e. call find equilibrium function
+p1 = 1.4
+p2 = 1
+kappa = 0.1
+eps = 1e-8
+p1 = find_equilibrium(alphas,p1,p2,k,kappa=kappa,eps=eps)
