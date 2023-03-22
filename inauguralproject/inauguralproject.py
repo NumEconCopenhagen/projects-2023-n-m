@@ -54,13 +54,18 @@ class HouseholdSpecializationModelClass:
         C = par.wM*LM + par.wF*LF
 
         # b. home production
-        H = HM**(1-par.alpha)*HF**par.alpha
+        if par.sigma == 0:
+            H = np.fmin(HM, HF)
+        elif par.sigma == 1:
+            H = HM**(1-par.alpha)*HF**par.alpha
+        else:
+            H = ((1-par.alpha)*HM**((par.sigma-1)/(par.sigma)) + par.alpha*HF**((par.sigma-1)/(par.sigma)))**(par.sigma/(par.sigma-1))
 
         # c. total consumption utility
         Q = C**par.omega*H**(1-par.omega)
         utility = np.fmax(Q,1e-8)**(1-par.rho)/(1-par.rho)
 
-        # d. disutlity of work
+        # d. disutility of work
         epsilon_ = 1+1/par.epsilon
         TM = LM+HM
         TF = LF+HF
@@ -97,7 +102,7 @@ class HouseholdSpecializationModelClass:
         opt.LM = LM[j]
         opt.HM = HM[j]
         opt.LF = LF[j]
-        opt.HF = HF[j]
+        opt.HF = HF[j]          
 
         # e. print
         if do_print:
@@ -108,26 +113,93 @@ class HouseholdSpecializationModelClass:
 
     def solve(self,do_print=False):
         """ solve model continously """
+        
+        opt = SimpleNamespace()
 
-        pass    
+        # define objective function to maximize
+        def objective(x):
+            LM, HM, LF, HF = x
+            return -self.calc_utility(LM, HM, LF, HF)
+
+        # define constraints and bounds
+        def constraints(x):
+            LM, HM, LF, HF = x
+            return [24 - LM - HM, 24 - LF - HF]
+        
+        constraints = ({'type':'ineq', 'fun': constraints})
+        bounds = ((0,24),(0,24),(0,24),(0,24))
+
+        # initial guess
+        initial_guess = [6, 6, 6, 6]
+
+        # call solver
+        solution = optimize.minimize(
+            objective, initial_guess, 
+            method='Nelder-Mead', 
+            bounds=bounds, 
+            constraints=constraints
+            )
+        
+        opt.LM, opt.HM, opt.LF, opt.HF = solution.x
+
+        return opt
+   
 
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
 
-        pass
+        par = self.par
+        sol = self.sol
+
+        # fill out solution vectors for HF and HM
+        for i, wF in enumerate(par.wF_vec):
+            par.wF = wF
+            optimum = self.solve()
+            sol.HF_vec[i] = optimum.HF
+            sol.HM_vec[i] = optimum.HM
+            sol.LF_vec[i] = optimum.LF
+            sol.LM_vec[i] = optimum.LM
+        
+        return sol.HF_vec, sol.HM_vec, sol.LF_vec, sol.LM_vec
+
 
     def run_regression(self):
         """ run regression """
 
         par = self.par
         sol = self.sol
+        
+        self.solve_wF_vec()
 
         x = np.log(par.wF_vec)
         y = np.log(sol.HF_vec/sol.HM_vec)
         A = np.vstack([np.ones(x.size),x]).T
+
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
+
+        return sol.beta0,sol.beta1
     
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
+        
+        par = self.par
+        sol = self.sol
 
-        pass 
+        # define objective function to minimize
+        def objective(x):
+            alpha, sigma = x
+            par.alpha = alpha
+            par.sigma = sigma
+            self.solve_wF_vec()
+            self.run_regression()
+            return (par.beta0_target - sol.beta0)**2+(par.beta1_target - sol.beta1)**2
+        
+        # initial guess
+        initial_guess = [0.5, 1.0]
+
+        # call solver
+        solution = optimize.minimize(objective, initial_guess, method='Nelder-Mead')
+
+        alpha_min, sigma_min = solution.x
+
+        return alpha_min, sigma_min
