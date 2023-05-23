@@ -179,27 +179,31 @@ class HouseholdSpecializationModelClass:
 
         return sol.beta0,sol.beta1
     
-    def estimate(self,alpha=None,sigma=None):
-        """ estimate alpha and sigma """
+# Defining the solution for continous time
+    def solve(self,do_print=False):
+        """ solve model continously """
+
+        par = self.par 
+        opt = SimpleNamespace()  
+
+        # a. objective function (to minimize) - including penalty to account for time constraints (for Nelder-Mead method)
+        def obj(x):
+            LM,HM,LF,HF=x
+            penalty=0
+            time_M = LM+HM
+            time_F = LF+HF
+            if time_M > 24 or time_F > 24:
+                penalty += 1000 * (max(time_M, time_F) - 24)
+            return -self.calc_utility(LM,HM,LF,HF) + penalty
         
-        par = self.par
-        sol = self.sol
-
-        # define objective function to minimize
-        def objective(x):
-            alpha, sigma = x
-            par.alpha = alpha
-            par.sigma = sigma
-            self.solve_wF_vec()
-            self.run_regression()
-            return (par.beta0_target - sol.beta0)**2+(par.beta1_target - sol.beta1)**2
+        # b. call solve
+        x0=[2,2,2,2] # initial guess
+        result = optimize.minimize(obj,x0,method='Nelder-Mead')
         
-        # initial guess
-        initial_guess = [0.5, 1.0]
-
-        # call solver
-        solution = optimize.minimize(objective, initial_guess, method='Nelder-Mead')
-
-        alpha_min, sigma_min = solution.x
-
-        return alpha_min, sigma_min
+        # c. save results
+        opt.LM = result.x[0]
+        opt.HM = result.x[1]
+        opt.LF = result.x[2]
+        opt.HF = result.x[3]
+        
+        return opt
