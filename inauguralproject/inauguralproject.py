@@ -207,3 +207,28 @@ class HouseholdSpecializationModelClass:
         opt.HF = result.x[3]
         
         return opt
+
+    def estimate(self,alpha=None,sigma=None):
+        """ estimate alpha and sigma """
+        
+        par = self.par
+        sol = self.sol
+
+        # define objective function to minimize
+        def objective(x):
+            alpha, sigma = x
+            par.alpha = alpha
+            par.sigma = sigma
+            self.solve_wF_vec()
+            self.run_regression()
+            return (par.beta0_target - sol.beta0)**2+(par.beta1_target - sol.beta1)**2
+        
+        # initial guess
+        initial_guess = [0.5, 1.0]
+
+        # call solver
+        solution = optimize.minimize(objective, initial_guess, method='Nelder-Mead')
+
+        alpha_min, sigma_min = solution.x
+
+        return alpha_min, sigma_min 
