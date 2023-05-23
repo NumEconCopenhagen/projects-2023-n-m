@@ -1,14 +1,13 @@
 # Data analysis project
 
-Our project is titled **PROJECT TITLE** and is about EXPLAIN.
+Our data project is titled **Wages and divorce rates** and is an investigation of how women's and men's wages affect the divorce rate in Denmark.
 
 The **results** of the project can be seen from running [dataproject.ipynb](dataproject.ipynb).
 
 We apply the **following datasets**:
 
-1. dataX.csv (*source*) 
-1. dataY.csv (*source*)
+1. div.xlsx (Source: Danmarks Statistik) 
+2. wm.xlsx (Source: Danmarks Statistik) 
+3. ww.xlsx (Source: Danmarks Statistik) 
 
-**Dependencies:** Apart from a standard Anaconda Python 3 installation, the project requires the following installations:
-
-``pip install matplotlib-venn``
+**Dependencies:** The project doesn't require any installations other than a standard Anaconda Python 3 installation.
