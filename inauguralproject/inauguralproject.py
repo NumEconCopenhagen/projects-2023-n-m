@@ -59,6 +59,8 @@ class HouseholdSpecializationModelClass:
         elif par.sigma == 1:
             H = HM**(1-par.alpha)*HF**par.alpha
         else:
+            HM = np.fmax(1e-9,HM)
+            HF = np.fmax(1e-9,HF)
             H = ((1-par.alpha)*HM**((par.sigma-1)/(par.sigma)) + par.alpha*HF**((par.sigma-1)/(par.sigma)))**(par.sigma/(par.sigma-1))
 
         # c. total consumption utility
