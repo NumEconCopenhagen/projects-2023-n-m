@@ -1,6 +1,6 @@
 # Data analysis project
 
-Our data project is titled **Wages and divorce rates** and is an investigation of how women's and men's wages affect the divorce rate in Denmark.
+Our data project is titled **Wages and Divorce Rates** and is an investigation of how women's and men's wages affect the divorce rate in Denmark.
 
 The **results** of the project can be seen from running [dataproject.ipynb](dataproject.ipynb).
 
