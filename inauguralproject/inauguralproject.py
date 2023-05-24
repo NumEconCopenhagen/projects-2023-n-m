@@ -180,35 +180,6 @@ class HouseholdSpecializationModelClass:
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
 
         return sol.beta0,sol.beta1
-    
-# Defining the solution for continous time
-    def solve(self,do_print=False):
-        """ solve model continously """
-
-        par = self.par 
-        opt = SimpleNamespace()  
-
-        # a. objective function (to minimize) - including penalty to account for time constraints (for Nelder-Mead method)
-        def obj(x):
-            LM,HM,LF,HF=x
-            penalty=0
-            time_M = LM+HM
-            time_F = LF+HF
-            if time_M > 24 or time_F > 24:
-                penalty += 1000 * (max(time_M, time_F) - 24)
-            return -self.calc_utility(LM,HM,LF,HF) + penalty
-        
-        # b. call solve
-        x0=[2,2,2,2] # initial guess
-        result = optimize.minimize(obj,x0,method='Nelder-Mead')
-        
-        # c. save results
-        opt.LM = result.x[0]
-        opt.HM = result.x[1]
-        opt.LF = result.x[2]
-        opt.HF = result.x[3]
-        
-        return opt
 
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
