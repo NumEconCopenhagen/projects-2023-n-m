@@ -52,7 +52,7 @@ class SolowModelClass:
         val.sK = 0.1
         val.sH = 0.1
         val.g = 0.05
-        val.n = 0.33
+        val.n = 1.2
         val.alpha = 0.33
         val.delta = 0.3
         val.phi = 0.02
@@ -83,25 +83,59 @@ class SolowModelClass:
 
         return k_tilde_ss, h_tilde_ss
     
-    def solve_numerical_ss(self):
-        """ function that solves the model numerically and returns k_tilde in steady state """
+    def solve_steady_state(self):
+        """ function that solves the model numerically and returns k_tilde and h_tilde in steady state """
 
         par = self.val
 
-        # define the steady state equation for k_tilde
-        def k_steady_state_eq(k_tilde):
-            return k_tilde - (1/((1+par.n)*(1+par.g))*(par.sK*par.k_tilde**par.alpha*par.h_tilde**par.phi+(1-par.delta)*par.k_tilde))
-        
-         # define the steady state equation for h_tilde
-        def h_steady_state_eq(h_tilde):
-            return h_tilde - (1/((1+par.n)*(1+par.g))*(par.sH*par.k_tilde**par.alpha*par.h_tilde**par.phi+(1-par.delta)*par.h_tilde))
+        # define the steady state equations
+        def steady_state_eq(vars):
+            k_tilde, h_tilde = vars
+            eq1 = k_tilde - ((1/(1+par.n)*(1+par.g)) * ((par.sK * k_tilde**par.alpha * h_tilde**par.phi + (1-par.delta) * k_tilde)))
+            eq2 = h_tilde - ((1/(1+par.n)*(1+par.g)) * ((par.sH * k_tilde**par.alpha * h_tilde**par.phi + (1-par.delta) * h_tilde)))
+            return [eq1, eq2]
 
         # make an initial guess for the solution
-        initial_guess = 0.5
+        initial_guess = [1, 1]  # initial guess for k_tilde and h_tilde
 
-        # solve the equation numerically
-        k_tilde_ss = optimize.root(k_steady_state_eq, initial_guess).x[0]
-        h_tilde_ss = optimize.root(h_steady_state_eq, initial_guess).x[0]
-        sm.pprint(k_tilde_ss, h_tilde_ss)
+        # solve the equations numerically
+        result = optimize.root(steady_state_eq, initial_guess)
+        if result.success:
+            k_tilde_ss, h_tilde_ss = result.x
+            print("Steady state found:")
+            print("k_tilde =", k_tilde_ss)
+            print("h_tilde =", h_tilde_ss)
+
+        else:
+            # Handle the case when the optimization fails
+            k_tilde_ss, h_tilde_ss = None, None
+            print("Failed to find steady state.")
 
         return k_tilde_ss, h_tilde_ss
+    
+    def convergence(self, evals=10):
+
+        par = self.val
+        k, h = 0.5, 0.5
+        fks = np.zeros(evals)
+        fhs = np.zeros(evals)
+        for i in range(evals):
+            k_new = ((par.sK*h**par.phi) + (1-par.delta)*k)**(1/(1-par.alpha))
+            h_new = ((par.sH*k**par.alpha) + (1-par.g)*h)**(1/par.phi)
+            fks[i] = np.abs(k_new - k)
+            fhs[i] = np.abs(h_new - h)
+            k, h = k_new, h_new
+            
+        # Plot the convergences for k and h
+        fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+        i = evals-1
+        axs[0].plot(np.arange(i+1), fks[:i+1], '--', ms=4, color='blue')
+        axs[0].set_title("k convergence")
+        axs[0].set_xlabel('iteration')
+        axs[1].plot(np.arange(i+1), fhs[:i+1], '--', ms=4, color='green')
+        axs[1].set_title("h convergence")
+        axs[1].set_xlabel('iteration')
+        plt.show()
+        
+        # Return the steady state values of physical and human capital
+        return k, h
