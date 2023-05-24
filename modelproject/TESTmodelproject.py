@@ -90,11 +90,11 @@ class SolowModelClass:
 
         # define the steady state equation for k_tilde
         def k_steady_state_eq(k_tilde):
-            return k_tilde - (1/((1+par.n)*(1+par.g))*(par.sK*par.k_tilde**par.alpha*par.h_tilde**par.phi)+(1-par.delta)*par.k_tilde)
+            return k_tilde - (1/((1+par.n)*(1+par.g))*(par.sK*par.k_tilde**par.alpha*par.h_tilde**par.phi+(1-par.delta)*par.k_tilde))
         
          # define the steady state equation for h_tilde
         def h_steady_state_eq(h_tilde):
-            return h_tilde - (1/((1+par.n)*(1+par.g))*(par.sH*par.k_tilde**par.alpha*par.h_tilde**par.phi)+(1-par.delta)*par.h_tilde)
+            return h_tilde - (1/((1+par.n)*(1+par.g))*(par.sH*par.k_tilde**par.alpha*par.h_tilde**par.phi+(1-par.delta)*par.h_tilde))
 
         # make an initial guess for the solution
         initial_guess = 0.5
