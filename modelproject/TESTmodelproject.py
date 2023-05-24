@@ -191,3 +191,5 @@ class SolowModelClass:
         plt.show()
 
         return null_ktilde, null_htilde
+    
+    
