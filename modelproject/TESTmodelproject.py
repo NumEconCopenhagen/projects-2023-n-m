@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from types import SimpleNamespace
 from tabulate import tabulate
 import ipywidgets as widgets
+from sympy import symbols, lambdify
 from ipywidgets import interact, interactive, fixed, interact_manual
 
 class SolowModelClass:
@@ -52,7 +53,7 @@ class SolowModelClass:
         val.sK = 0.1
         val.sH = 0.1
         val.g = 0.05
-        val.n = 1.2
+        val.n = 0.01
         val.alpha = 0.33
         val.delta = 0.3
         val.phi = 0.02
@@ -64,6 +65,7 @@ class SolowModelClass:
         sim.A = np.zeros(par.simT)
         sim.Y = np.zeros(par.simT)
         sim.H = np.zeros(par.simT)
+        sim.k_tilde = np.zeros(par.simT)
 
     def solve_analytical_ss(self):
         """ function that solves the model analytically and returns k_tilde in steady state """
@@ -106,6 +108,10 @@ class SolowModelClass:
             print("k_tilde =", k_tilde_ss)
             print("h_tilde =", h_tilde_ss)
 
+            # Save values
+            self.k_tilde_ss = k_tilde_ss
+            self.h_tilde_ss = h_tilde_ss
+
         else:
             # Handle the case when the optimization fails
             k_tilde_ss, h_tilde_ss = None, None
@@ -139,3 +145,49 @@ class SolowModelClass:
         
         # Return the steady state values of physical and human capital
         return k, h
+
+    def y_steady_state(self):
+        par = self.val
+        y_ss = self.k_tilde_ss**par.alpha * self.h_tilde_ss**par.phi
+        print("Y steady state found=", y_ss)
+        return y_ss
+
+    def nullclines(val):
+        k_tilde = val.k_tilde
+        h_tilde = val.h_tilde
+        
+        null_k = sm.Eq(0, 1/((1+val.n)*(1+val.g))*(val.sK*k_tilde**val.alpha*h_tilde**val.phi+(1-val.delta)*k_tilde))
+        null_h = sm.Eq(0, 1/((1+val.n)*(1+val.g))*(val.sH*k_tilde**val.alpha*h_tilde**val.phi+(1-val.delta)*h_tilde))
+        
+        null_ktilde = sm.solve(null_k, h_tilde)[0]
+        null_htilde = sm.solve(null_h, h_tilde)[0]
+
+        null_k_func = sm.lambdify([k_tilde, val.alpha, val.delta, val.n, val.phi, val.sK], null_ktilde)
+        null_h_func = sm.lambdify([k_tilde, val.alpha, val.delta, val.n, val.phi, val.sH], null_htilde)
+
+        k_tilde_vec = np.linspace(1e-10, 3, 100)
+
+        alpha_val = val.alpha
+        delta_val = val.delta
+        g_val = val.g
+        n_val = val.n
+        phi_val = val.phi
+        sK_val = 0.12
+        sH_val = 0.07
+
+        null_k_val = null_k_func(k_tilde_vec, alpha_val, delta_val, n_val, phi_val, sK_val)
+        null_h_val = null_h_func(k_tilde_vec, alpha_val, delta_val, n_val, phi_val, sH_val)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+        ax.plot(k_tilde_vec, null_k_val, label=r'$ \Delta \tilde{k}_t = 0$')
+        ax.plot(k_tilde_vec, null_h_val, label=r'$ \Delta \tilde{h}_t = 0$')
+        ax.set_xlabel(r'$\tilde{k}_t$')
+        ax.set_ylabel(r'$\tilde{h}_t$')
+        ax.set_title('Fig 1. Analytical null clines', size=12)
+        ax.legend(loc='upper left')
+
+        plt.show()
+
+        return null_ktilde, null_htilde
