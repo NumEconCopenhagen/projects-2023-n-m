@@ -128,7 +128,7 @@ class HouseholdSpecializationModelClass:
             LM, HM, LF, HF = x
             return [24 - LM - HM, 24 - LF - HF]
         
-        constraints = ({'type':'ineq', 'fun': constraints})
+        #constraints = ({'type':'ineq', 'fun': constraints}) is not used since constraints don't work with Nelder-Mead
         bounds = ((0,24),(0,24),(0,24),(0,24))
 
         # initial guess
@@ -139,7 +139,6 @@ class HouseholdSpecializationModelClass:
             objective, initial_guess, 
             method='Nelder-Mead', 
             bounds=bounds, 
-            constraints=constraints
             )
         
         opt.LM, opt.HM, opt.LF, opt.HF = solution.x
