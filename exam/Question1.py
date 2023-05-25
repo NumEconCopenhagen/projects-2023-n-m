@@ -124,12 +124,5 @@ class OptimalLCalculator:
         plt.title('Objective Function V(tau)')
         plt.show()
 
-    def utility(L, w, tau, G, alpha, kappa, sigma, rho, nu, epsilon):
-        C = kappa + (1 - tau) * w * L
-        return ((((alpha * C**((sigma-1)/sigma) + (1 - alpha) * G**((sigma-1)/sigma))**(sigma/(sigma-1)))**(1-rho)-1)/(1- rho)) - nu * (L**(1+epsilon))/(1+epsilon)
-
-    def government(G, w, tau, alpha, kappa, sigma, rho, nu, epsilon):
-        L_opt = optimize.fminbound(lambda L: -utility(L, w, tau, G, alpha, kappa, sigma, rho, nu, epsilon), 0, 24)
-        return G - tau * w * L_opt
 
 
