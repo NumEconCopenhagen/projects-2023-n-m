@@ -1,6 +1,54 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize
+import sympy as sm
+import numpy as np
+import matplotlib.pyplot as plt
+
+class UtilityPlotter:
+    def __init__(self, kappa, alpha, nu, tau, w):
+        self.kappa = kappa
+        self.alpha = alpha
+        self.nu = nu
+        self.tau = tau
+        self.w = w
+
+    def _calculate_optimal_L(self, w_tilde_values):
+        # Defining the parameter symbols
+        L, w_tilde, kappa, alpha, nu, C, G, tau = sm.symbols('L w_tilde kappa alpha nu C G tau')
+
+        # Defining utility & consumption constraint (we have already substituted the expression for w_tilde in the consumption constraint)
+        utility = sm.log(C**alpha * G**(1-alpha)) - (nu * (L**2 / 2))
+        consumption_constraint = sm.Eq(C, kappa + w_tilde * L)
+
+        consumption_constraint_solved = sm.solve(consumption_constraint, C)
+
+        # Inserting expression for C in the utility function
+        utility_subs = utility.subs(C, consumption_constraint_solved[0])
+
+        # Different values of G to test
+        G_values = [1.0, 2.0]
+
+        # Calculate the optimal L for each G value using list comprehension
+        optimal_L = [sm.solve(sm.Eq(sm.diff(utility_subs.subs(G, G_val), L), 0), L)[0] for G_val in G_values]
+
+        # saving the function
+        optimal_L_func = sm.lambdify(args=(kappa, nu, alpha, w_tilde), expr=optimal_L[0])
+
+        L_values = optimal_L_func(self.kappa, self.nu, self.alpha, w_tilde_values)  # Replace with actual parameter values
+        return L_values
+
+    def plot_utility(self):
+        w_tilde_values = np.linspace(0.01, 2, 100)
+        L_values = self._calculate_optimal_L(w_tilde_values)
+
+        # Plot the graph
+        plt.plot(w_tilde_values, L_values)
+        plt.xlabel('w_tilde')
+        plt.ylabel('L^star')
+        plt.title('Plot of L^star(w_tilde)')
+        plt.grid(True)
+        plt.show()
 
 class RefinedGlobalOptimizer:
     def __init__(self, warm_up_iterations):
