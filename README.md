@@ -1,8 +1,8 @@
 # \[N & M\]
 
 **Group members:**
-- Nina Frandsen Jensen
-- Mathilde Maix
+- Nina Frandsen Jensen (qls153)
+- Mathilde Maix (sfx620)
 
 Group name on Digital Exam: Fri-953598-73
 
