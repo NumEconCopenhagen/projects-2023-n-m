@@ -6,6 +6,7 @@ import sympy as sm
 from scipy import optimize
 from tabulate import tabulate
 from scipy import optimize
+import scipy.optimize as optimize
 from sympy import symbols, lambdify
 from scipy.optimize import minimize_scalar
 from matplotlib import pyplot as plt
@@ -94,6 +95,41 @@ class OptimalLCalculator:
 
         plt.tight_layout()
         plt.show()
-    
+
+    def plot_question4(self, kappa, alpha, nu, w):
+        def V(tau, w, kappa, alpha, nu):
+            w_tilde = (1 - tau) * w
+            L_star = (-kappa + np.sqrt(kappa**2 + 4 * alpha/nu * w_tilde**2)) / (2 * w_tilde)
+            C = kappa + (1 - tau) * w * L_star
+            G = tau * w * L_star*((1-tau)*w)
+            return np.log(C**alpha * G**(1 - alpha)) - nu * L_star**2 / 2
+        
+        def maximize_V(w, kappa, alpha, nu):
+            result = minimize_scalar(lambda tau: -V(tau, w, kappa, alpha, nu), bounds=(0, 1), method='bounded')
+            return result.x
+        
+        max_tau = maximize_V(w, kappa, alpha, nu)
+        max_V = V(max_tau, w, kappa, alpha, nu)
+        tau_vals = np.linspace(0, 1, 100)
+
+        # Calculate V values
+        V_vals = [V(tau, w, kappa, alpha, nu) for tau in tau_vals]
+
+        # Plot V(tau)
+        plt.plot(tau_vals, V_vals)
+        plt.scatter(max_tau, max_V, color='red', label='Max V')
+        plt.xlabel('tau')
+        plt.ylabel('V')
+        plt.legend()
+        plt.title('Objective Function V(tau)')
+        plt.show()
+
+    def utility(L, w, tau, G, alpha, kappa, sigma, rho, nu, epsilon):
+        C = kappa + (1 - tau) * w * L
+        return ((((alpha * C**((sigma-1)/sigma) + (1 - alpha) * G**((sigma-1)/sigma))**(sigma/(sigma-1)))**(1-rho)-1)/(1- rho)) - nu * (L**(1+epsilon))/(1+epsilon)
+
+    def government(G, w, tau, alpha, kappa, sigma, rho, nu, epsilon):
+        L_opt = optimize.fminbound(lambda L: -utility(L, w, tau, G, alpha, kappa, sigma, rho, nu, epsilon), 0, 24)
+        return G - tau * w * L_opt
 
 
