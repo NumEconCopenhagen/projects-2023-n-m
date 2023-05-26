@@ -131,7 +131,7 @@ class hairdresser:
         R = (1 + 0.01) ** (1 / 12)
         K = 50  # Number of shock series
 
-        delta_values = np.linspace(0, 1, 31)  # Range of delta values to search over
+        delta_values = np.linspace(0, 1, 100)  # Range of delta values to search over
         H_values = []
 
         # Simulate shock series
