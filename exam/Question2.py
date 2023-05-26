@@ -16,7 +16,7 @@ class hairdresser:
         self.eta = eta
         self.w = w
         self.kappa_values = kappa_values
-
+    
     def calculate_optimal_ell(self):
         p_t = sm.symbols('p_t')
         y_t = sm.symbols('y_t')
@@ -35,19 +35,6 @@ class hairdresser:
         optimal_ell = sm.solve(derivative, ell_t)
 
         return optimal_ell
-
-    def calculate_profits(self):
-        optimal_ell = self.calculate_optimal_ell()
-
-        for kappa in self.kappa_values:
-            # Calculate ell_t
-            ell_t = ((kappa * (1 - self.eta)) / self.w) ** (1 / self.eta)
-
-            # Calculate profits
-            profits = kappa * ell_t ** (1 - self.eta) - self.w * ell_t
-
-            # Print the results
-            print(f"For kappa = {kappa:.1f}, the maximum profit is = {profits:.2f}")
     
     def calculate_expected_value(self):
         eta = 0.5
