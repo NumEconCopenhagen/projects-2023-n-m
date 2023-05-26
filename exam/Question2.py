@@ -129,9 +129,9 @@ class hairdresser:
         iota = 0.01
         sigma_epsilon = 0.10
         R = (1 + 0.01) ** (1 / 12)
-        K = 500  # Number of shock series
+        K = 50  # Number of shock series
 
-        delta_values = np.linspace(0, 0.1, 100)  # Range of delta values to search over
+        delta_values = np.linspace(0, 1, 31)  # Range of delta values to search over
         H_values = []
 
         # Simulate shock series
@@ -176,6 +176,7 @@ class hairdresser:
         plt.ylabel('Expected value of the salon (H)')
         plt.title('Optimization of Delta')
         plt.axvline(x=optimal_delta, color='r', linestyle='--', label='Optimal Delta')
+        plt.xlim(-0.01, 1)
         plt.legend()
         plt.show()
 
