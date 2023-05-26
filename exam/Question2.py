@@ -79,7 +79,7 @@ class hairdresser:
             value_functions.append(value_function)
 
         # Calculate expected value of the salon
-        H = np.mean(value_functions)
+        H = np.mean(value_functions[:-1])
         return H
 
     def calculate_new_expected_value(self):
@@ -119,7 +119,7 @@ class hairdresser:
             value_functions.append(value_function)
 
         # Calculate expected value of the salon
-        H = np.mean(value_functions)
+        H = np.mean(value_functions[:-1])
         return H
     
     def optimize_delta(self):
