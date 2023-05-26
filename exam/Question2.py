@@ -211,7 +211,7 @@ class hairdresser:
                 if t == 0:
                     ell_series[t] = ell_star
                 else:
-                    ell_series[t] = lag_weight * ell_series[t - 1] + (1 - lag_weight) * ell_star
+                    ell_series[t] = lag_weight * ell_star + (1 - lag_weight) * ell_series[t - 1]
 
                 if t > 0 and ell_series[t] != ell_series[t - 1]:
                     value_function += R ** (-t) * (
