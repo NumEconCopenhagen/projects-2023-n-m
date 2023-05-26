@@ -71,10 +71,10 @@ class hairdresser:
 
             for t in range(120):
                 kappa_series[t] = np.exp(rho * np.log(kappa_series[t - 1]) + epsilon_series[k, t])
-                ell_series[t] = (1 - eta) * kappa_series[t] / w ** (1 / eta)
+                ell_series[t] = ((1 - eta) * kappa_series[t] / w ) ** (1 / eta)
 
                 if t > 0 and ell_series[t] != ell_series[t - 1]:
-                    value_function += R ** (-t) * (kappa_series[t] * ell_series[t] ** (1 - eta) - w * ell_series[t] - iota)
+                    value_function += R ** (-t) * (kappa_series[t] * ell_series[t] ** (1 - eta) - w * ell_series[t]- iota)
 
             value_functions.append(value_function)
 
@@ -106,7 +106,7 @@ class hairdresser:
             for t in range(120):
                 kappa_series[t] = np.exp(rho * np.log(kappa_series[t - 1]) + epsilon_series[k, t])
 
-                ell_star = (1 - eta) * kappa_series[t] / w ** (1 / eta)
+                ell_star = ((1 - eta) * kappa_series[t] / w )** (1 / eta)
 
                 if t == 0 or abs(ell_series[t - 1] - ell_star) > delta:
                     ell_series[t] = ell_star
@@ -129,7 +129,7 @@ class hairdresser:
         iota = 0.01
         sigma_epsilon = 0.10
         R = (1 + 0.01) ** (1 / 12)
-        K = 1000  # Number of shock series
+        K = 500  # Number of shock series
 
         delta_values = np.linspace(0, 0.1, 100)  # Range of delta values to search over
         H_values = []
@@ -149,7 +149,7 @@ class hairdresser:
                 for t in range(120):
                     kappa_series[t] = np.exp(rho * np.log(kappa_series[t - 1]) + epsilon_series[k, t])
 
-                    ell_star = (1 - eta) * kappa_series[t] / w ** (1 / eta)
+                    ell_star = ((1 - eta) * kappa_series[t] / w ) ** (1 / eta)
 
                     if t == 0 or abs(ell_series[t - 1] - ell_star) > delta:
                         ell_series[t] = ell_star
