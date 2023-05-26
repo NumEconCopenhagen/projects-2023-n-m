@@ -182,5 +182,43 @@ class hairdresser:
         print(f"Optimal Delta: {optimal_delta}")
         print(f"Maximum H value: {max_H}")
 
+    def calculate_new_expected_value_with_lag(self, lag_weight):
+        eta = self.eta
+        w = self.w
+        rho = 0.90
+        iota = 0.01
+        sigma_epsilon = 0.10
+        R = (1 + 0.01) ** (1 / 12)
+        K = 1000  # Number of shock series
 
+        # Simulate shock series
+        np.random.seed(1)
+        epsilon_series = np.random.normal(-0.5 * sigma_epsilon ** 2, sigma_epsilon, size=(K, 120))
+
+        # Calculate value function for each shock series
+        value_functions = []
+        for k in range(K):
+            kappa_series = np.exp(np.zeros(120))
+            ell_series = np.zeros(120)
+            value_function = 0
+
+            for t in range(120):
+                kappa_series[t] = np.exp(rho * np.log(kappa_series[t - 1]) + epsilon_series[k, t])
+
+                ell_star = (((1 - eta) * kappa_series[t]) / w ) ** (1 / eta)
+
+                if t == 0:
+                    ell_series[t] = ell_star
+                else:
+                    ell_series[t] = lag_weight * ell_series[t - 1] + (1 - lag_weight) * ell_star
+
+                if t > 0 and ell_series[t] != ell_series[t - 1]:
+                    value_function += R ** (-t) * (
+                            kappa_series[t] * ell_series[t] ** (1 - eta) - w * ell_series[t] - iota)
+
+            value_functions.append(value_function)
+
+        # Calculate expected value of the salon
+        H = np.mean(value_functions[:-1])
+        return H
 
