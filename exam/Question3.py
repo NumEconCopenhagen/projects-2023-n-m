@@ -4,6 +4,8 @@ from scipy import optimize
 import sympy as sm
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
 
 class RefinedGlobalOptimizer:
     def __init__(self, warm_up_iterations):
@@ -64,5 +66,32 @@ class RefinedGlobalOptimizer:
         plt.xlabel('x1')
         plt.ylabel('x2')
         plt.title('Effective Initial Guesses x^k0 vs. Iteration Number')
+        plt.show()
+    
+    def plot_griewank_surface_contour(self, bound):
+        print(f'In [{-bound},{bound}] x [{-bound},{bound}]:')
+
+        # a. grids
+        x1_vec = np.linspace(-bound, bound, 1000)
+        x2_vec = np.linspace(-bound, bound, 1000)
+        x1_grid_griewank, x2_grid_griewank = np.meshgrid(x1_vec, x2_vec, indexing='ij')
+        griewank_grid = self.griewank_(x1_grid_griewank, x2_grid_griewank)
+
+        # b. main
+        fig = plt.figure(figsize=(12, 4))
+
+        # 3D
+        ax = fig.add_subplot(1, 2, 1, projection='3d')
+        cs = ax.plot_surface(x1_grid_griewank, x2_grid_griewank, griewank_grid, cmap=cm.jet)
+        ax.set_xlabel('$x_1$')
+        ax.set_ylabel('$x_2$')
+        ax.invert_xaxis()
+
+        # contour
+        ax = fig.add_subplot(1, 2, 2)
+        cs = ax.contour(x1_vec, x2_vec, griewank_grid, levels=15, cmap=cm.jet)
+        ax.set_xlabel('$x_1$')
+        ax.set_ylabel('$x_2$')
+
         plt.show()
 
