@@ -107,12 +107,11 @@ class OptimalLCalculator:
         def maximize_V(w, kappa, alpha, nu):
             result = minimize_scalar(lambda tau: -V(tau, w, kappa, alpha, nu), bounds=(0, 1), method='bounded')
             return result.x
-        
+
         max_tau = maximize_V(w, kappa, alpha, nu)
         max_V = V(max_tau, w, kappa, alpha, nu)
-        tau_vals = np.linspace(0, 1, 100)
 
-        # Calculate V values
+        tau_vals = np.linspace(0, 1, 100)
         V_vals = [V(tau, w, kappa, alpha, nu) for tau in tau_vals]
 
         # Plot V(tau)
@@ -123,6 +122,9 @@ class OptimalLCalculator:
         plt.legend()
         plt.title('Objective Function V(tau)')
         plt.show()
+
+        return max_tau, max_V
+
 
 
 
