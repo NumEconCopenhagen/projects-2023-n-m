@@ -35,7 +35,7 @@ class hairdresser:
         optimal_ell = sm.solve(derivative, ell_t)
 
         return optimal_ell
-    
+
     def calculate_expected_value(self):
         eta = 0.5
         w = 1.0
