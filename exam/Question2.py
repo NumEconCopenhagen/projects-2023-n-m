@@ -129,7 +129,7 @@ class hairdresser:
         iota = 0.01
         sigma_epsilon = 0.10
         R = (1 + 0.01) ** (1 / 12)
-        K = 50  # Number of shock series
+        K = 1000  # Number of shock series
 
         delta_values = np.linspace(0, 1, 100)  # Range of delta values to search over
         H_values = []
