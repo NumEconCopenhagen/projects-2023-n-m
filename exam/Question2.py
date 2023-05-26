@@ -41,7 +41,7 @@ class hairdresser:
 
         for kappa in self.kappa_values:
             # Calculate ell_t
-            ell_t = (kappa * (1 - self.eta) / self.w) ** (1 / self.eta)
+            ell_t = ((kappa * (1 - self.eta)) / self.w) ** (1 / self.eta)
 
             # Calculate profits
             profits = kappa * ell_t ** (1 - self.eta) - self.w * ell_t
@@ -71,7 +71,7 @@ class hairdresser:
 
             for t in range(120):
                 kappa_series[t] = np.exp(rho * np.log(kappa_series[t - 1]) + epsilon_series[k, t])
-                ell_series[t] = ((1 - eta) * kappa_series[t] / w ) ** (1 / eta)
+                ell_series[t] = (((1 - eta) * kappa_series[t]) / w ) ** (1 / eta)
 
                 if t > 0 and ell_series[t] != ell_series[t - 1]:
                     value_function += R ** (-t) * (kappa_series[t] * ell_series[t] ** (1 - eta) - w * ell_series[t]- iota)
@@ -106,7 +106,7 @@ class hairdresser:
             for t in range(120):
                 kappa_series[t] = np.exp(rho * np.log(kappa_series[t - 1]) + epsilon_series[k, t])
 
-                ell_star = ((1 - eta) * kappa_series[t] / w )** (1 / eta)
+                ell_star = (((1 - eta) * kappa_series[t]) / w )** (1 / eta)
 
                 if t == 0 or abs(ell_series[t - 1] - ell_star) > delta:
                     ell_series[t] = ell_star
@@ -149,7 +149,7 @@ class hairdresser:
                 for t in range(120):
                     kappa_series[t] = np.exp(rho * np.log(kappa_series[t - 1]) + epsilon_series[k, t])
 
-                    ell_star = ((1 - eta) * kappa_series[t] / w ) ** (1 / eta)
+                    ell_star = (((1 - eta) * kappa_series[t]) / w ) ** (1 / eta)
 
                     if t == 0 or abs(ell_series[t - 1] - ell_star) > delta:
                         ell_series[t] = ell_star
